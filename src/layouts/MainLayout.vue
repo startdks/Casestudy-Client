@@ -9,11 +9,20 @@
               <q-item clickable v-close-popup to="/">
                 <q-item-section>Home</q-item-section>
               </q-item>
-              <q-item clickable v-close-popup to="Brand">
+              <q-item clickable v-close-popup to="brand">
                 <q-item-section>Brands</q-item-section>
               </q-item>
-              <q-item clickable v-close-popup to="Cart">
+              <q-item clickable v-close-popup to="cart">
                 <q-item-section>Cart</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup to="register">
+                <q-item-section>Register</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup to="login">
+                <q-item-section>Login</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup to="logout">
+                <q-item-section>Logout</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
