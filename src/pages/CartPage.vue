@@ -17,18 +17,18 @@
             <q-item-section class="text-bold"> MSRP </q-item-section>
             <q-item-section class="text-bold"> Extended </q-item-section>
           </q-item>
-          <q-item v-for="trayItem in state.tray" :key="trayItem.id">
+          <q-item v-for="cartItem in state.cart" :key="cartItem.id">
             <q-item-section class="col-3 q-ml-sm">
-              {{ trayItem.item.productName }}
+              {{ cartItem.item.productName }}
             </q-item-section>
             <q-item-section class="col-2 q-ml-sm">
-              {{ trayItem.qty }}
+              {{ cartItem.qty }}
             </q-item-section>
             <q-item-section class="col-3 q-ml-sm">
-              {{ formatCurrency(trayItem.item.msrp) }}
+              {{ formatCurrency(cartItem.item.msrp) }}
             </q-item-section>
             <q-item-section class="q-ml-sm">
-              {{ formatCurrency(trayItem.item.msrp * trayItem.qty) }}
+              {{ formatCurrency(cartItem.item.msrp * cartItem.qty) }}
             </q-item-section>
           </q-item>
           <q-item>
@@ -59,6 +59,13 @@
       </q-card>
       <div class="text-left">
         <q-btn
+          color="primary"
+          label="Save Cart"
+          :disable="state.cart.length < 1"
+          @click="saveCart()"
+          style="max-width: 40vw; margin-bottom: 3vw; margin-left: 3vw"
+        />
+        <q-btn
           icon="autorenew"
           color="primary"
           label=" Empty Cart"
@@ -73,43 +80,65 @@
 <script>
 import { reactive, onMounted } from "vue";
 import { formatCurrency } from "../utils/formatutils";
+import { poster } from "../utils/apiutil";
+
 export default {
   setup() {
     let state = reactive({
       status: "",
-      tray: [],
+      cart: [],
       msrpTotal: 0,
     });
 
     onMounted(() => {
-      if (JSON.parse(sessionStorage.getItem("tray")) == null) {
+      if (JSON.parse(sessionStorage.getItem("cart")) == null) {
         return;
       }
-      const fetchedTray = JSON.parse(sessionStorage.getItem("tray"));
-      fetchedTray.forEach((item) => {
+      const fetchedCart = JSON.parse(sessionStorage.getItem("cart"));
+      fetchedCart.forEach((item) => {
         state.msrpTotal += item.qty * item.item.msrp;
       });
-      state.tray = fetchedTray;
+      state.cart = fetchedCart;
     });
 
     const emptyCart = () => {
       state.isHidden = true;
-      sessionStorage.removeItem("tray");
-      state.tray = [];
+      sessionStorage.removeItem("cart");
+      state.cart = [];
       state.status = "Cart emptied";
       state.msrpTotal = 0;
     };
 
-    var addUp = (trayItem) => {
-      const msrp = trayItem.qty * trayItem.item.msrp;
-      console.log(trayItem.qty * trayItem.item.msrp);
+    var addUp = (cartItem) => {
+      const msrp = cartItem.qty * cartItem.item.msrp;
+      console.log(cartItem.qty * cartItem.item.msrp);
       state.msrpTotal += msrp;
       return state.msrpTotal;
+    };
+
+    const saveCart = async () => {
+      let customer = JSON.parse(sessionStorage.getItem("customer"));
+      let cart = JSON.parse(sessionStorage.getItem("cart"));
+      try {
+        state.status = "sending cart info to server";
+        let cartHelper = { email: customer.email, selections: cart };
+        let payload = await poster("order", cartHelper);
+        if (payload.indexOf("not") > 0) {
+          state.status = payload;
+        } else {
+          emptyCart();
+          state.status = payload;
+        }
+      } catch (err) {
+        console.log(err);
+        state.status = `Error add cart: ${err}`;
+      }
     };
 
     return {
       formatCurrency,
       emptyCart,
+      saveCart,
       addUp,
       state,
     };

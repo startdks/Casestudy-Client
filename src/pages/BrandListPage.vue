@@ -65,8 +65,10 @@
           </q-avatar>
         </q-item-section>
         <div class="text-subtitle2 text-center">
-          <b>{{ state.selectedProducts.productName }} -
-          {{ formatCurrency(state.selectedProducts.msrp) }}</b>
+          <b
+            >{{ state.selectedProducts.productName }} -
+            {{ formatCurrency(state.selectedProducts.msrp) }}</b
+          >
         </div>
       </q-card-section>
       <q-card-section class="text-center text-positive">
@@ -94,9 +96,16 @@
           />&nbsp;
           <q-btn
             color="primary"
-            label="Add To Tray"
+            label="Add To Cart"
             :disable="state.qty < 0"
-            @click="addToTray()"
+            @click="addToCart()"
+            style="max-width: 25vw; margin-left: 3vw"
+          />
+          <q-btn
+            color="primary"
+            label="View Cart"
+            :disable="state.qty < 0"
+            @click="viewCart()"
             style="max-width: 25vw; margin-left: 3vw"
           />
         </div>
@@ -111,6 +120,7 @@
 import { reactive, onMounted } from "vue";
 import { fetcher } from "../utils/apiutil";
 import { formatCurrency } from "../utils/formatutils";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -124,11 +134,12 @@ export default {
       dialogStatus: "",
       itemSelected: false,
       qty: 0,
-      tray: [],
+      cart: [],
     });
     onMounted(() => {
       getBrands();
     });
+    const router = useRouter();
     const getBrands = async () => {
       try {
         state.status = "fetching Brands...";
@@ -164,30 +175,30 @@ ${state.selectedBrand.name}`;
         );
         state.itemSelected = true;
         state.dialogStatus = "";
-        if (sessionStorage.getItem("tray")) {
-          state.tray = JSON.parse(sessionStorage.getItem("tray"));
+        if (sessionStorage.getItem("cart")) {
+          state.cart = JSON.parse(sessionStorage.getItem("cart"));
         }
       } catch (err) {
         console.log(err);
         state.status = `Error has occured: ${err.message}`;
       }
     };
-    const addToTray = () => {
+    const addToCart = () => {
       let index = -1;
-      if (state.tray.length > 0) {
-        index = state.tray.findIndex(
-          // is item already on the tray
+      if (state.cart.length > 0) {
+        index = state.cart.findIndex(
+          // is item already on the cart
           (item) => item.id === state.selectedProducts.id
         );
       }
       if (state.qty > 0) {
         index === -1 // add
-          ? state.tray.push({
+          ? state.cart.push({
               id: state.selectedProducts.id,
               qty: state.qty,
               item: state.selectedProducts,
             })
-          : (state.tray[index] = {
+          : (state.cart[index] = {
               // replace
               id: state.selectedProducts.id,
               qty: state.qty,
@@ -195,11 +206,15 @@ ${state.selectedBrand.name}`;
             });
         state.dialogStatus = `${state.qty} item(s) added`;
       } else {
-        index === -1 ? null : state.tray.splice(index, 1); // remove
+        index === -1 ? null : state.cart.splice(index, 1); // remove
         state.dialogStatus = `item(s) removed`;
       }
-      sessionStorage.setItem("tray", JSON.stringify(state.tray));
+      sessionStorage.setItem("cart", JSON.stringify(state.cart));
       state.qty = 0;
+    };
+
+    const viewCart = () => {
+      router.push("cart");
     };
 
     return {
@@ -207,7 +222,8 @@ ${state.selectedBrand.name}`;
       getProducts,
       selectProducts,
       formatCurrency,
-      addToTray,
+      addToCart,
+      viewCart,
       state,
     };
   },

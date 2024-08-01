@@ -30,12 +30,13 @@ const poster = async (endpoint, dataToPost) => {
   }
   return payload;
 };
+
 const buildHeaders = () => {
   const myHeaders = new Headers();
-  const user = JSON.parse(sessionStorage.getItem("user"));
-  if (user) {
+  const customer = JSON.parse(sessionStorage.getItem("customer"));
+  if (customer) {
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", "Bearer " + user.token);
+    myHeaders.append("Authorization", "Bearer " + customer.token);
   } else {
     myHeaders.append("Content-Type", "application/json");
   }

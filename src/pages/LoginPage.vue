@@ -55,19 +55,19 @@ export default {
     const route = useRoute();
 
     const login = async () => {
-      let userHelper = {
+      let customerHelper = {
         email: state.email,
         password: state.password,
       };
 
-      let payload = await poster("customer/login", userHelper);
+      let payload = await poster("customer/login", customerHelper);
       try {
         state.status = payload.token;
       } catch (err) {
         state.status = err.message;
       }
       if (!payload.token.includes("failed")) {
-        sessionStorage.setItem("user", JSON.stringify(payload));
+        sessionStorage.setItem("customer", JSON.stringify(payload));
         state.status = "login successful";
         route.query.nextUrl
           ? router.push({ path: route.query.nextUrl })

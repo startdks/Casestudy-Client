@@ -1,6 +1,6 @@
 <template>
   <div class="text-h4 text-center q-mt-md q-mb-md text-primary">
-    User has logged out
+    Customer has logged out
   </div>
 </template>
 <script>

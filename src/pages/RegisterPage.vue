@@ -64,14 +64,14 @@ export default {
     };
 
     const register = async () => {
-      let userHelper = {
+      let customerHelper = {
         firstname: state.firstname,
         lastname: state.lastname,
         email: state.email,
         password: state.password,
       };
       try {
-        let payload = await poster("customer/register", userHelper);
+        let payload = await poster("customer/register", customerHelper);
         state.status = payload.token;
       } catch (err) {
         state.status = err.message;
